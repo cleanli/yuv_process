@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -11,35 +12,42 @@ int main()
 {
        size_t ret = 0;
        unsigned char c;
+       int width = IMG_W, height = IMG_H;
+       unsigned char* input_line = (char*) malloc(2*width);
+       if(!input_line){
+               printf("can't malloc memory!\n");
+	       return -1;
+       }
+       unsigned char* output_line = input_line + width;
        printf("hello world.\n");
        FILE *fpi = fopen("C:\\files\\ffmpeg\\xcb.yuv", "rb");
        FILE *fpo = fopen("C:\\files\\ffmpeg\\xcb_o.yuv", "wb");
        if(fpi == NULL || fpo == NULL){
-               //if(fpi == NULL){
                printf("open fail\n");
                return -1;
        }
-       for(unsigned int i=0;i<UVSIZE*2;i++)
-               //for(unsigned int i=0;i<UVSIZE;i++)
+       for(unsigned int i=0;i<height;i++)
        {
-               ret = fread(&c, 1, 1, fpi);
+               ret = fread(input_line, width, 1, fpi);
                if(ret != 1){
-                       printf("ret %d i %x err %s\n", ret, i, strerror(errno));
+                       printf("fread ret %d i %x err %s\n", ret, i, strerror(errno));
                        return -1;
                }
-               if(c > THRD)c=255;
-               if(c <=THRD)c=0;
-               //printf("c = %02x\n", c);
-               fwrite(&c, 1, 1, fpo);
+	       for(int j=0;j<width;j++){
+	               //printf("i put j %x i[j] %x\n", j, input_line[j]);
+                       if(input_line[j] > THRD)output_line[j]=255;
+                       if(input_line[j] <=THRD)output_line[j]=0;
+	       }
+               fwrite(output_line, width, 1, fpo);
        }
 
-       c=0x80;
-       for(unsigned int i=0;i<UVSIZE;i++)
-               //for(unsigned int i=0;i<UVSIZE;i++)
+       memset(output_line, 0x80, width/2);
+       for(unsigned int i=0;i<height;i++)
        {
-               fwrite(&c, 1, 1, fpo);
+               fwrite(output_line, width/2, 1, fpo);
        }
 
+       free(input_line);
        fclose(fpi);
        fclose(fpo);
 }
