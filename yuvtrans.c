@@ -6,16 +6,19 @@
 #define IMG_W 5376
 #define IMG_H 3024
 #define UVSIZE (IMG_W * IMG_H / 2)
-
+#define MAX_BYTES_FILENAME 128
 
 int main(int argc, char *argv[])
 {
        size_t ret = 0;
        unsigned char thr=THRD;
        int width = IMG_W, height = IMG_H;
-       printf("argc %d\n", argc);
-       if(argc <= 6){
-               printf("Usage: yuv_process W H THR inputfile outputfile\n");
+       char* inputfilename = "C:\\files\\ffmpeg\\xcb.yuv";
+       char outputfilename[MAX_BYTES_FILENAME];
+       memset(outputfilename, 0, MAX_BYTES_FILENAME);
+       //printf("argc %d\n", argc);
+       if(argc <= 5){
+               printf("yuvprocess v0.1\nUsage: yuv_process W H inputfile THR(128)\n");
        }
        if(argc >= 2){
                width = atoi(argv[1]);
@@ -26,8 +29,17 @@ int main(int argc, char *argv[])
 	       printf("H = %d\n", height);
        }
        if(argc >= 4){
-               thr = atoi(argv[3]);
+               inputfilename = argv[3];
+	       printf("filename = %s\n", inputfilename);
+       }
+       if(argc >= 5){
+               thr = atoi(argv[4]);
 	       printf("THR = %d\n", thr);
+       }
+       //printf("last is %s\n", inputfilename+strlen(inputfilename)-4);
+       sprintf(outputfilename, "%s_out.yuv", inputfilename);
+       if(strlen(inputfilename)>4 && !strcmp(".yuv", inputfilename+strlen(inputfilename)-4)){
+               sprintf(outputfilename+strlen(inputfilename)-4, "%s", "_out.yuv");
        }
        unsigned char* input_line = (char*) malloc(2*width);
        if(!input_line){
@@ -35,9 +47,10 @@ int main(int argc, char *argv[])
 	       return -1;
        }
        unsigned char* output_line = input_line + width;
-       printf("hello world.\n");
-       FILE *fpi = fopen("C:\\files\\ffmpeg\\xcb.yuv", "rb");
-       FILE *fpo = fopen("C:\\files\\ffmpeg\\xcb_o.yuv", "wb");
+       printf("start process...\n");
+       printf("yuv_process %d %d %s %d %s\n", width, height, inputfilename, thr, outputfilename);
+       FILE *fpi = fopen(inputfilename, "rb");
+       FILE *fpo = fopen(outputfilename, "wb");
        if(fpi == NULL || fpo == NULL){
                printf("open fail\n");
                return -1;
@@ -62,6 +75,7 @@ int main(int argc, char *argv[])
        {
                fwrite(output_line, width/2, 1, fpo);
        }
+       printf("done\n");
 
        free(input_line);
        fclose(fpi);
