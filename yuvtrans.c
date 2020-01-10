@@ -9,8 +9,10 @@
 #define MAX_BYTES_FILENAME 128
 
 unsigned char abdiff(unsigned char x, unsigned char y);
+unsigned char getmax(unsigned char x, unsigned char y);
 int main(int argc, char *argv[])
 {
+    int rc = 0;
     size_t ret = 0;
     unsigned char thr=THRD;
     int width = IMG_W, height = IMG_H;
@@ -51,13 +53,15 @@ int main(int argc, char *argv[])
     if(strlen(inputfilename)>4 && !strcmp(".yuv", inputfilename+strlen(inputfilename)-4)){
         sprintf(outputfilename+strlen(inputfilename)-4, "%s", filename_end);
     }
-    unsigned char* input_line = (char*) malloc(3*width);
+    unsigned char* input_line = (char*) malloc(4*width);
     if(!input_line){
         printf("can't malloc memory!\n");
-        return -1;
+        rc = -1;
+        goto quit;
     }
     unsigned char* output_line = input_line + width;
     unsigned char* pre_input_line = input_line + width*2;
+    unsigned char* next_input_line = input_line + width*3;
     memset(input_line, 0, width);
     printf("start process...\n");
     printf("yuv_process %d %d %s %d %s print=%d\n",
@@ -65,21 +69,35 @@ int main(int argc, char *argv[])
     FILE *fpi = fopen(inputfilename, "rb");
     if(fpi == NULL){
         printf("open input fail\n");
-        return -1;
+        rc = -1;
+        goto quit;
     }
     FILE *fpo = fopen(outputfilename, "wb");
     if(fpi == NULL || fpo == NULL){
         printf("open output fail\n");
         fclose(fpi);
-        return -1;
+        rc = -1;
+        goto quit;
     }
     for(unsigned int i=0;i<height;i++)
     {
         memcpy(pre_input_line, input_line, width);
-        ret = fread(input_line, width, 1, fpi);
-        if(ret != 1){
-            printf("fread ret %d i %x err %s\n", ret, i, strerror(errno));
-            return -1;
+        if(i == 0){
+            ret = fread(next_input_line, width, 1, fpi);
+            if(ret != 1){
+                printf("fread ret %d i %x err %s\n", ret, i, strerror(errno));
+                rc = -1;
+                goto quit;
+            }
+        }
+        memcpy(input_line, next_input_line, width);
+        if(i < height -1){
+            ret = fread(next_input_line, width, 1, fpi);
+            if(ret != 1){
+                printf("fread ret %d i %x err %s\n", ret, i, strerror(errno));
+                rc = -1;
+                goto quit;
+            }
         }
         for(int j=0;j<width;j++){
             if(!algo_flag){
@@ -88,11 +106,27 @@ int main(int argc, char *argv[])
             }
             else{
                 unsigned char ddt;
-                if(j == width -1) ddt = 0;
-                else ddt = abdiff(input_line[j+1],input_line[j]);
-                if(ddt > thr)output_line[j]=0;
-                else if(abdiff(input_line[j], pre_input_line[j]) > thr) output_line[j] = 0;
-                else output_line[j]=255;
+                if(j == width -1) ddt = abdiff(input_line[j-1],input_line[j]);
+                else if(j == 0) ddt = abdiff(input_line[j+1],input_line[j]);
+                else{
+                    ddt = getmax(abdiff(input_line[j-1],input_line[j]), abdiff(input_line[j+1],input_line[j]));
+                }
+                if(ddt > thr){
+                    output_line[j]=0;
+                }
+                else{//vertical check
+                    if(i == height - 1) ddt = abdiff(input_line[j],pre_input_line[j]);
+                    else if(i == 0) ddt = abdiff(next_input_line[j],input_line[j]);
+                    else{
+                        ddt = getmax(abdiff(pre_input_line[j],input_line[j]), abdiff(next_input_line[j],input_line[j]));
+                    }
+                    if(ddt > thr){
+                        output_line[j]=0;
+                    }
+                    else{
+                        output_line[j]=255;
+                    }
+                }
             }
         }
         fwrite(output_line, width, 1, fpo);
@@ -105,13 +139,20 @@ int main(int argc, char *argv[])
     }
     printf("done\n");
 
+quit:
     free(input_line);
-    fclose(fpi);
-    fclose(fpo);
+    if(!fpi)fclose(fpi);
+    if(!fpo)fclose(fpo);
+    return ret;
 }
 
 unsigned char abdiff(unsigned char x, unsigned char y)
 {
     if(x > y)return x-y;
     else return y-x;
+}
+
+unsigned char getmax(unsigned char x, unsigned char y)
+{
+    return (x > y)?x:y;
 }
