@@ -63,9 +63,14 @@ int main(int argc, char *argv[])
     printf("yuv_process %d %d %s %d %s print=%d\n",
             width, height, inputfilename, thr, outputfilename, algo_flag);
     FILE *fpi = fopen(inputfilename, "rb");
+    if(fpi == NULL){
+        printf("open input fail\n");
+        return -1;
+    }
     FILE *fpo = fopen(outputfilename, "wb");
     if(fpi == NULL || fpo == NULL){
-        printf("open fail\n");
+        printf("open output fail\n");
+        fclose(fpi);
         return -1;
     }
     for(unsigned int i=0;i<height;i++)
