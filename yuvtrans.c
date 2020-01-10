@@ -53,16 +53,17 @@ int main(int argc, char *argv[])
     if(strlen(inputfilename)>4 && !strcmp(".yuv", inputfilename+strlen(inputfilename)-4)){
         sprintf(outputfilename+strlen(inputfilename)-4, "%s", filename_end);
     }
-    unsigned char* input_line = (char*) malloc(4*width);
-    if(!input_line){
+    unsigned char* mem = (char*) malloc(4*(width+2));
+    if(!mem){
         printf("can't malloc memory!\n");
         rc = -1;
         goto quit;
     }
-    unsigned char* output_line = input_line + width;
-    unsigned char* pre_input_line = input_line + width*2;
-    unsigned char* next_input_line = input_line + width*3;
-    memset(input_line, 0, width);
+    unsigned char* input_line = mem + 1;
+    unsigned char* output_line = mem + (width + 2) + 1;
+    unsigned char* pre_input_line = mem + (width + 2)*2 + 1;
+    unsigned char* next_input_line = mem + (width + 2)*3 + 1;
+    memset(mem, 0x80, (width + 2) * 4);
     printf("start process...\n");
     printf("yuv_process %d %d %s %d %s print=%d\n",
             width, height, inputfilename, thr, outputfilename, algo_flag);
@@ -105,6 +106,7 @@ int main(int argc, char *argv[])
                 if(input_line[j] <=thr)output_line[j]=0;
             }
             else{
+#if 0
                 unsigned char ddt;
                 if(j == width -1) ddt = abdiff(input_line[j-1],input_line[j]);
                 else if(j == 0) ddt = abdiff(input_line[j+1],input_line[j]);
@@ -126,6 +128,31 @@ int main(int argc, char *argv[])
                     else{
                         output_line[j]=255;
                     }
+                }
+#endif
+#if 0
+                if(abdiff(input_line[j], input_line[j-1]) > thr
+                        || abdiff(input_line[j], input_line[j+1]) > thr
+                        || abdiff(input_line[j], pre_input_line[j]) > thr
+                        || abdiff(input_line[j], next_input_line[j]) > thr
+                        || abdiff(input_line[j], pre_input_line[j-1]) > thr
+                        || abdiff(input_line[j], next_input_line[j-1]) > thr
+                        || abdiff(input_line[j], pre_input_line[j+1]) > thr
+                        || abdiff(input_line[j], next_input_line[j+1]) > thr){
+                        output_line[j]=0;
+                }
+                else{
+                    output_line[j]=255;
+                }
+#endif
+                if(abdiff(input_line[j], input_line[j+1]) > thr
+                        || abdiff(input_line[j], pre_input_line[j]) > thr
+                        || abdiff(input_line[j], pre_input_line[j-1]) > thr
+                        || abdiff(input_line[j], pre_input_line[j+1]) > thr){
+                        output_line[j]=0;
+                }
+                else{
+                    output_line[j]=255;
                 }
             }
         }
