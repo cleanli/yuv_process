@@ -21,10 +21,10 @@ int main(int argc, char *argv[])
     char outputfilename[MAX_BYTES_FILENAME];
     char* filename_end = "_out.yuv";
     memset(outputfilename, 0, MAX_BYTES_FILENAME);
-    //printf("argc %d\n", argc);
     if(argc <= 6){
         printf("yuvprocess v0.1\nUsage: yuv_process W H inputfile THR(128) print\n");
     }
+    printf("Build @ %s %s\n", __DATE__, __TIME__);
     if(argc >= 2){
         width = atoi(argv[1]);
         printf("W = %d\n", width);
@@ -159,10 +159,10 @@ int main(int argc, char *argv[])
         fwrite(output_line, width, 1, fpo);
     }
 
-    memset(output_line, 0x80, width/2);
+    memset(output_line, 0x80, (width+1)/2);
     for(unsigned int i=0;i<height;i++)
     {
-        fwrite(output_line, width/2, 1, fpo);
+        fwrite(output_line, (width+1)/2, 1, fpo);
     }
     printf("done\n");
 
