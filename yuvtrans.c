@@ -21,11 +21,19 @@ int main(int argc, char *argv[])
     char outputfilename[MAX_BYTES_FILENAME];
     char* filename_end = "_out.yuv";
     memset(outputfilename, 0, MAX_BYTES_FILENAME);
+    printf("Build @ %s %s\n", __DATE__, __TIME__);
     if(argc <= 6){
         printf("yuvprocess v0.1\nUsage: yuv_process W H inputfile THR(128) THRL print\n");
+        printf("Example:\n./yuvtrans.exe 1729 2448 test.yuv\n");
+        printf("./yuvtrans.exe 1729 2448 test.yuv 110\n");
+        printf("./yuvtrans.exe 1729 2448 test.yuv 110 0\n");
+        printf("./yuvtrans.exe 1729 2448 test.yuv 30 30 print\n");
+        printf("With ffmpeg:\n");
+        printf("./ffmpeg.exe -i test.jpg -pix_fmt yuvj420p test.yuv\n");
+        printf("./yuvtrans.exe 1729 2448 test.yuv 107\n");
+        printf("./ffmpeg.exe -s 1729x2448 -pix_fmt yuvj420p -i test_out.yuv -frames 1 -f image2 -y test_out.jpeg\n");
         if(argc == 1)return 0;
     }
-    printf("Build @ %s %s\n", __DATE__, __TIME__);
     if(argc >= 2){
         width = atoi(argv[1]);
         printf("W = %d\n", width);
