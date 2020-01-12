@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 {
     int rc = 0;
     size_t ret = 0;
-    unsigned char thr=THRD;
+    unsigned char thr=THRD, thrl=THRD;
     int width = IMG_W, height = IMG_H;
     int algo_flag = 0;
     char* inputfilename = "C:\\files\\ffmpeg\\xcb.yuv";
@@ -22,7 +22,8 @@ int main(int argc, char *argv[])
     char* filename_end = "_out.yuv";
     memset(outputfilename, 0, MAX_BYTES_FILENAME);
     if(argc <= 6){
-        printf("yuvprocess v0.1\nUsage: yuv_process W H inputfile THR(128) print\n");
+        printf("yuvprocess v0.1\nUsage: yuv_process W H inputfile THR(128) THRL print\n");
+        if(argc == 1)return 0;
     }
     printf("Build @ %s %s\n", __DATE__, __TIME__);
     if(argc >= 2){
@@ -39,10 +40,17 @@ int main(int argc, char *argv[])
     }
     if(argc >= 5){
         thr = atoi(argv[4]);
+        thrl = thr;
         printf("THR = %d\n", thr);
     }
     if(argc >= 6){
-        if(!strcmp("print",argv[5])){
+        int t = atoi(argv[5]);
+        if(t<=thr)thrl=t;
+        else printf("THRL can't be less than THR\n");
+        printf("THRL = %d\n", thrl);
+    }
+    if(argc >= 7){
+        if(!strcmp("print",argv[6])){
             algo_flag = 1;
             filename_end = "_outP.yuv";
         }
@@ -65,8 +73,8 @@ int main(int argc, char *argv[])
     unsigned char* next_input_line = mem + (width + 2)*3 + 1;
     memset(mem, 0x80, (width + 2) * 4);
     printf("start process...\n");
-    printf("yuv_process %d %d %s %d %s print=%d\n",
-            width, height, inputfilename, thr, outputfilename, algo_flag);
+    printf("yuv_process %d %d %s %d %s print=%d %d\n",
+            width, height, inputfilename, thr, outputfilename, algo_flag, thrl);
     FILE *fpi = fopen(inputfilename, "rb");
     if(fpi == NULL){
         printf("open input fail\n");
@@ -103,7 +111,11 @@ int main(int argc, char *argv[])
         for(int j=0;j<width;j++){
             if(!algo_flag){
                 if(input_line[j] > thr)output_line[j]=255;
-                if(input_line[j] <=thr)output_line[j]=0;
+                else if(input_line[j] <=thrl)output_line[j]=0;
+                else{
+                    //output_line[j] = thrl + (unsigned int)(thr-thrl)*input_line[j]/255;
+                    output_line[j] = input_line[j];
+                }
             }
             else{
 #if 0
