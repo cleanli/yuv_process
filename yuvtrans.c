@@ -110,11 +110,10 @@ int main(int argc, char *argv[])
         }
         for(int j=0;j<width;j++){
             if(!algo_flag){
-                if(input_line[j] > thr)output_line[j]=255;
+                if(input_line[j] >= thr)output_line[j]=255;
                 else if(input_line[j] <=thrl)output_line[j]=0;
                 else{
-                    //output_line[j] = thrl + (unsigned int)(thr-thrl)*input_line[j]/255;
-                    output_line[j] = input_line[j];
+                    output_line[j] = (unsigned int)256*(input_line[j]-thrl)/(thr-thrl);
                 }
             }
             else{
