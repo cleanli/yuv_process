@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 #define THRD 128
 #define IMG_W 5376
 #define IMG_H 3024
@@ -10,6 +11,18 @@
 
 unsigned char abdiff(unsigned char x, unsigned char y);
 unsigned char getmax(unsigned char x, unsigned char y);
+void help_message()
+{
+        printf("yuvprocess v0.1\nUsage: yuv_process W H inputfile THR(128) THRL print\n");
+        printf("Example:\n./yuvtrans.exe 1729 2448 test.yuv\n");
+        printf("./yuvtrans.exe 1729 2448 test.yuv 110\n");
+        printf("./yuvtrans.exe 1729 2448 test.yuv 110 0\n");
+        printf("./yuvtrans.exe 1729 2448 test.yuv 30 30 print\n");
+        printf("With ffmpeg:\n");
+        printf("./ffmpeg.exe -i test.jpg -pix_fmt yuvj420p test.yuv\n");
+        printf("./yuvtrans.exe 1729 2448 test.yuv 107\n");
+        printf("./ffmpeg.exe -s 1729x2448 -pix_fmt yuvj420p -i test_out.yuv -frames 1 -f image2 -y test_out.jpeg\n");
+}
 int main(int argc, char *argv[])
 {
     int rc = 0;
@@ -23,15 +36,7 @@ int main(int argc, char *argv[])
     memset(outputfilename, 0, MAX_BYTES_FILENAME);
     printf("Build @ %s %s\n", __DATE__, __TIME__);
     if(argc <= 6){
-        printf("yuvprocess v0.1\nUsage: yuv_process W H inputfile THR(128) THRL print\n");
-        printf("Example:\n./yuvtrans.exe 1729 2448 test.yuv\n");
-        printf("./yuvtrans.exe 1729 2448 test.yuv 110\n");
-        printf("./yuvtrans.exe 1729 2448 test.yuv 110 0\n");
-        printf("./yuvtrans.exe 1729 2448 test.yuv 30 30 print\n");
-        printf("With ffmpeg:\n");
-        printf("./ffmpeg.exe -i test.jpg -pix_fmt yuvj420p test.yuv\n");
-        printf("./yuvtrans.exe 1729 2448 test.yuv 107\n");
-        printf("./ffmpeg.exe -s 1729x2448 -pix_fmt yuvj420p -i test_out.yuv -frames 1 -f image2 -y test_out.jpeg\n");
+        help_message();
         if(argc == 1)return 0;
     }
     if(argc >= 2){
