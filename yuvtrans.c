@@ -25,9 +25,9 @@ void help_message()
 }
 int main(int argc, char *argv[])
 {
-    int rc = 0;
+    int rc = 0, tmp;
     size_t ret = 0;
-    unsigned char thr=THRD, thrl=THRD;
+    unsigned char thr=THRD, thrl=0;
     int width = IMG_W, height = IMG_H;
     int algo_flag = 0;
     char* inputfilename = "C:\\files\\ffmpeg\\xcb.yuv";
@@ -35,39 +35,66 @@ int main(int argc, char *argv[])
     char* filename_end = "_out.yuv";
     memset(outputfilename, 0, MAX_BYTES_FILENAME);
     printf("Build @ %s %s\n", __DATE__, __TIME__);
-    if(argc <= 6){
+
+    fflush(stdout);
+    int ch;
+    while((ch = getopt(argc,argv,"s:i:t:p"))!= -1)
+    {
+        putchar(ch);
+        printf("\n");
+        fflush(stdout);
+        switch(ch)
+        {
+            case 's':
+                printf("option s:’%s’\n",optarg);
+                fflush(stdout);
+                sscanf(optarg, "%dx%d", &width, &height);
+                printf("w=%d h=%d\n", width, height);
+                fflush(stdout);
+                break;
+            case 'i':
+                printf("option i:’%s’\n",optarg);
+                inputfilename = optarg;
+                printf("input file:%s\n",inputfilename);
+                break;
+            case 't':
+                printf("option t:’%s’\n",optarg);
+                tmp = atoi(optarg);;
+                if(tmp>0 && tmp<256){
+                    thr = tmp;
+                }
+                break;
+            case 'l':
+                printf("option l:’%s’\n",optarg);
+                tmp = atoi(optarg);;
+                if(tmp>0 && tmp<256 && tmp< thr){
+                    thrl = tmp;
+                    printf("THRL = %d\n", thrl);
+                }
+                else{
+                    printf("err thrl\n");
+                }
+                break;
+            case 'p':
+                algo_flag = 1;
+                filename_end = "_outP.yuv";
+                printf("print = %d\n", algo_flag);
+                break;
+            default:
+                printf("other option :%c\n",ch);
+        }
+        printf("optopt +%c\n",optopt);
+        fflush(stdout);
+    }
+    fflush(stdout);
+
+    if(argc <= 6 || !width || !height){
         help_message();
         if(argc == 1)return 0;
     }
-    if(argc >= 2){
-        width = atoi(argv[1]);
-        printf("W = %d\n", width);
-    }
-    if(argc >= 3){
-        height = atoi(argv[2]);
-        printf("H = %d\n", height);
-    }
-    if(argc >= 4){
-        inputfilename = argv[3];
-        printf("filename = %s\n", inputfilename);
-    }
-    if(argc >= 5){
-        thr = atoi(argv[4]);
+    if(!thrl){
         thrl = thr;
-        printf("THR = %d\n", thr);
-    }
-    if(argc >= 6){
-        int t = atoi(argv[5]);
-        if(t<=thr)thrl=t;
-        else printf("THRL can't be less than THR\n");
-        printf("THRL = %d\n", thrl);
-    }
-    if(argc >= 7){
-        if(!strcmp("print",argv[6])){
-            algo_flag = 1;
-            filename_end = "_outP.yuv";
-        }
-        printf("print = %d\n", algo_flag);
+        printf("THRL = %d\n", thr);
     }
     //printf("last is %s\n", inputfilename+strlen(inputfilename)-4);
     sprintf(outputfilename, "%s%s", inputfilename, filename_end);
