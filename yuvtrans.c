@@ -13,14 +13,14 @@ unsigned char abdiff(unsigned char x, unsigned char y);
 unsigned char getmax(unsigned char x, unsigned char y);
 void help_message()
 {
-        printf("yuvprocess v0.1\nUsage: yuv_process W H inputfile THR(128) THRL print\n");
-        printf("Example:\n./yuvtrans.exe 1729 2448 test.yuv\n");
-        printf("./yuvtrans.exe 1729 2448 test.yuv 110\n");
-        printf("./yuvtrans.exe 1729 2448 test.yuv 110 0\n");
-        printf("./yuvtrans.exe 1729 2448 test.yuv 30 30 print\n");
+        printf("yuvprocess v0.1\nUsage: yuv_process -s WxH -i inputfile -r THR(128) -l THRL (-p)\n");
+        printf("Example:\n./yuvtrans.exe -s 1729x2448 -i test.yuv\n");
+        printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 110\n");
+        printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 110 -l 0\n");
+        printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 30 30 -p\n");
         printf("With ffmpeg:\n");
         printf("./ffmpeg.exe -i test.jpg -pix_fmt yuvj420p test.yuv\n");
-        printf("./yuvtrans.exe 1729 2448 test.yuv 107\n");
+        printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 107\n");
         printf("./ffmpeg.exe -s 1729x2448 -pix_fmt yuvj420p -i test_out.yuv -frames 1 -f image2 -y test_out.jpeg\n");
 }
 int main(int argc, char *argv[])
