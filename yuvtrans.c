@@ -17,17 +17,19 @@ void help_message()
         printf("Example:\n./yuvtrans.exe -s 1729x2448 -i test.yuv\n");
         printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 110\n");
         printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 110 -l 0\n");
-        printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 30 30 -p\n");
+        printf("./yuvtrans.exe -s 3264x2448 -i IMG_20200126_233432.yuv -r 160 -l 100\n");
+        printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 30 -l 30 -p\n");
         printf("With ffmpeg:\n");
         printf("./ffmpeg.exe -i test.jpg -pix_fmt yuvj420p test.yuv\n");
         printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 107\n");
         printf("./ffmpeg.exe -s 1729x2448 -pix_fmt yuvj420p -i test_out.yuv -frames 1 -f image2 -y test_out.jpeg\n");
+        printf("./test IMG_20200126_233432 160 100\n");
 }
 int main(int argc, char *argv[])
 {
     int rc = 0, tmp;
     size_t ret = 0;
-    unsigned char thr=THRD, thrl=0;
+    unsigned char thr=THRD, thrl=THRD;
     int width = IMG_W, height = IMG_H;
     int algo_flag = 0;
     char* inputfilename = "C:\\files\\ffmpeg\\xcb.yuv";
@@ -38,7 +40,7 @@ int main(int argc, char *argv[])
 
     fflush(stdout);
     int ch;
-    while((ch = getopt(argc,argv,"s:i:t:p"))!= -1)
+    while((ch = getopt(argc,argv,"s:i:r:l:p"))!= -1)
     {
         putchar(ch);
         printf("\n");
@@ -57,8 +59,8 @@ int main(int argc, char *argv[])
                 inputfilename = optarg;
                 printf("input file:%s\n",inputfilename);
                 break;
-            case 't':
-                printf("option t:'%s'\n",optarg);
+            case 'r':
+                printf("option r:'%s'\n",optarg);
                 tmp = atoi(optarg);;
                 if(tmp>0 && tmp<256){
                     thr = tmp;
@@ -67,7 +69,7 @@ int main(int argc, char *argv[])
             case 'l':
                 printf("option l:'%s'\n",optarg);
                 tmp = atoi(optarg);;
-                if(tmp>0 && tmp<256 && tmp< thr){
+                if(tmp>=0 && tmp< thr){
                     thrl = tmp;
                     printf("THRL = %d\n", thrl);
                 }
@@ -92,9 +94,6 @@ int main(int argc, char *argv[])
         help_message();
         if(argc == 1)return 0;
     }
-    if(!thrl){
-        thrl = thr;
-    }
     printf("THRL = %d\n", thr);
     //printf("last is %s\n", inputfilename+strlen(inputfilename)-4);
     sprintf(outputfilename, "%s%s", inputfilename, filename_end);
@@ -113,7 +112,7 @@ int main(int argc, char *argv[])
     unsigned char* next_input_line = mem + (width + 2)*3 + 1;
     memset(mem, 0x80, (width + 2) * 4);
     printf("start process...\n");
-    printf("yuv_process %d %d %s %d %s print=%d %d\n",
+    printf("yuv_process %dx%d %s %d %s print=%d %d\n",
             width, height, inputfilename, thr, outputfilename, algo_flag, thrl);
     FILE *fpi = fopen(inputfilename, "rb");
     if(fpi == NULL){

@@ -1,0 +1,8 @@
+Please put ffmpeg files here!
+Something like following:
+        ffmpeg/LICENSE.txt
+        ffmpeg/README.txt
+        ffmpeg/bin/
+        ffmpeg/doc/
+        ffmpeg/presets/
+
