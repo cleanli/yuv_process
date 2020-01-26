@@ -46,26 +46,26 @@ int main(int argc, char *argv[])
         switch(ch)
         {
             case 's':
-                printf("option s:’%s’\n",optarg);
+                printf("option s:'%s'\n",optarg);
                 fflush(stdout);
                 sscanf(optarg, "%dx%d", &width, &height);
                 printf("w=%d h=%d\n", width, height);
                 fflush(stdout);
                 break;
             case 'i':
-                printf("option i:’%s’\n",optarg);
+                printf("option i:'%s'\n",optarg);
                 inputfilename = optarg;
                 printf("input file:%s\n",inputfilename);
                 break;
             case 't':
-                printf("option t:’%s’\n",optarg);
+                printf("option t:'%s'\n",optarg);
                 tmp = atoi(optarg);;
                 if(tmp>0 && tmp<256){
                     thr = tmp;
                 }
                 break;
             case 'l':
-                printf("option l:’%s’\n",optarg);
+                printf("option l:'%s'\n",optarg);
                 tmp = atoi(optarg);;
                 if(tmp>0 && tmp<256 && tmp< thr){
                     thrl = tmp;
@@ -94,8 +94,8 @@ int main(int argc, char *argv[])
     }
     if(!thrl){
         thrl = thr;
-        printf("THRL = %d\n", thr);
     }
+    printf("THRL = %d\n", thr);
     //printf("last is %s\n", inputfilename+strlen(inputfilename)-4);
     sprintf(outputfilename, "%s%s", inputfilename, filename_end);
     if(strlen(inputfilename)>4 && !strcmp(".yuv", inputfilename+strlen(inputfilename)-4)){
