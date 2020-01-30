@@ -9,11 +9,13 @@
 #define UVSIZE (IMG_W * IMG_H / 2)
 #define MAX_BYTES_FILENAME 128
 
+#include "j.h"
+
 unsigned char abdiff(unsigned char x, unsigned char y);
 unsigned char getmax(unsigned char x, unsigned char y);
 void help_message()
 {
-        printf("yuvprocess v0.1\nUsage: yuv_process -s WxH -i inputfile -r THR(128) -l THRL (-p)\n");
+        printf("yuvprocess v0.2\nUsage: yuv_process -s WxH -i inputfile -r THR(128) -l THRL (-p)\n");
         printf("Example:\n./yuvtrans.exe -s 1729x2448 -i test.yuv\n");
         printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 110\n");
         printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 110 -l 0\n");
@@ -24,6 +26,7 @@ void help_message()
         printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 107\n");
         printf("./ffmpeg.exe -s 1729x2448 -pix_fmt yuvj420p -i test_out.yuv -frames 1 -f image2 -y test_out.jpeg\n");
         printf("./test IMG_20200126_233432 160 100\n");
+        printf("\n\nGet size of jpeg:\nyuv_process -j inputfile\n");
 }
 int main(int argc, char *argv[])
 {
@@ -36,15 +39,12 @@ int main(int argc, char *argv[])
     char outputfilename[MAX_BYTES_FILENAME];
     char* filename_end = "_out.yuv";
     memset(outputfilename, 0, MAX_BYTES_FILENAME);
-    printf("Build @ %s %s\n", __DATE__, __TIME__);
-
-    fflush(stdout);
     int ch;
-    while((ch = getopt(argc,argv,"s:i:r:l:p"))!= -1)
+    while((ch = getopt(argc,argv,"s:i:r:l:pj:"))!= -1)
     {
-        putchar(ch);
-        printf("\n");
-        fflush(stdout);
+        //putchar(ch);
+        //printf("\n");
+        //fflush(stdout);
         switch(ch)
         {
             case 's':
@@ -82,12 +82,24 @@ int main(int argc, char *argv[])
                 filename_end = "_outP.yuv";
                 printf("print = %d\n", algo_flag);
                 break;
+            case 'j':
+                inputfilename = optarg;
+                if(0 == GetJPEGWidthHeight(optarg, &width, &height)){
+                    printf("%dx%d\n", width, height);
+                }
+                else{
+                    printf("err\n");
+                }
+                return 0;
+                break;
             default:
                 printf("other option :%c\n",ch);
         }
         printf("optopt +%c\n",optopt);
         fflush(stdout);
     }
+    fflush(stdout);
+    printf("Build @ %s %s\n", __DATE__, __TIME__);
     fflush(stdout);
 
     if(argc <= 6 || !width || !height){

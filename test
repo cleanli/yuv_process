@@ -1,11 +1,19 @@
 if [ $1 ];then
 
+SIZE=`./yuvtrans.exe -j $1.jpg`
+echo Get size is $SIZE
+
+if [ $SIZE == 'err' ];then
+echo Get size of $1.jpg error, quit
+
+else
 echo converting jpeg to yuv
 ./ffmpeg/bin/ffmpeg.exe -i $1.jpg -pix_fmt yuvj420p -y $1.yuv
-echo yuvtrans.exe -s 3264x2448 -i $1.yuv -r $2 -l $3
-./yuvtrans.exe -s 3264x2448 -i $1.yuv -r $2 -l $3
-./ffmpeg/bin/ffmpeg.exe -s 3264x2448 -pix_fmt yuvj420p -i $1_out.yuv -frames 1 -f image2 -y $1_out.jpeg
+echo yuvtrans.exe -s $SIZE -i $1.yuv -r $2 -l $3
+./yuvtrans.exe -s $SIZE -i $1.yuv -r $2 -l $3
+./ffmpeg/bin/ffmpeg.exe -s $SIZE -pix_fmt yuvj420p -i $1_out.yuv -frames 1 -f image2 -y $1_out.jpeg
 echo $1 $2 $3 done
+fi
 
 else
 echo Please input filename of input!
