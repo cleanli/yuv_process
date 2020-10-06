@@ -31,6 +31,7 @@ void help_message()
 int main(int argc, char *argv[])
 {
     int rc = 0, tmp;
+    int quiet = 0;
     size_t ret = 0;
     unsigned char thr=THRD, thrl=THRD;
     int cut_up = 0, cut_down = 0, cut_left = 0, cut_right = 0;
@@ -41,19 +42,26 @@ int main(int argc, char *argv[])
     char* filename_end = "_out.yuv";
     memset(outputfilename, 0, MAX_BYTES_FILENAME);
     int ch;
-    while((ch = getopt(argc,argv,"s:i:r:l:pj:c:"))!= -1)
+    while((ch = getopt(argc,argv,"s:i:r:l:pj:c:q"))!= -1)
     {
         //putchar(ch);
         //printf("\n");
         //fflush(stdout);
         switch(ch)
         {
+            case 'q':
+                quiet = 1;
+                break;
             case 'c':
-                //printf("option c:'%s'\n",optarg);
-                //fflush(stdout);
+                if(!quiet){
+                    printf("option c:'%s'\n",optarg);
+                    fflush(stdout);
+                }
                 sscanf(optarg, "u%dd%dl%dr%d", &cut_up, &cut_down, &cut_left, &cut_right);
-                //printf("cut u=%d d=%d l=%d r=%d\n", cut_up, cut_down, cut_left, cut_right);
-                //fflush(stdout);
+                if(!quiet){
+                    printf("cut u=%d d=%d l=%d r=%d\n", cut_up, cut_down, cut_left, cut_right);
+                    fflush(stdout);
+                }
                 break;
             case 's':
                 printf("option s:'%s'\n",optarg);
@@ -103,7 +111,9 @@ int main(int argc, char *argv[])
             default:
                 printf("other option :%c\n",ch);
         }
-        //printf("optopt +%c\n",optopt);
+        if(!quiet){
+            printf("optopt +%c\n",optopt);
+        }
         fflush(stdout);
     }
     fflush(stdout);

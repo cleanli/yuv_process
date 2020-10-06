@@ -22,7 +22,7 @@ if [ $1 ];then
     else
       CUTP='u0d0l0r0'
     fi
-    OUTSIZE=`./yuvtrans.exe -c $CUTP -j $1.jpg`
+    OUTSIZE=`./yuvtrans.exe -q -c $CUTP -j $1.jpg`
     echo =====================================
     echo Get output size is $OUTSIZE
     echo =====================================
