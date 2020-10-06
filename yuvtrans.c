@@ -49,11 +49,11 @@ int main(int argc, char *argv[])
         switch(ch)
         {
             case 'c':
-                printf("option c:'%s'\n",optarg);
-                fflush(stdout);
+                //printf("option c:'%s'\n",optarg);
+                //fflush(stdout);
                 sscanf(optarg, "u%dd%dl%dr%d", &cut_up, &cut_down, &cut_left, &cut_right);
-                printf("cut u=%d d=%d l=%d r=%d\n", cut_up, cut_down, cut_left, cut_right);
-                fflush(stdout);
+                //printf("cut u=%d d=%d l=%d r=%d\n", cut_up, cut_down, cut_left, cut_right);
+                //fflush(stdout);
                 break;
             case 's':
                 printf("option s:'%s'\n",optarg);
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
             case 'j':
                 inputfilename = optarg;
                 if(0 == GetJPEGWidthHeight(optarg, &width, &height)){
-                    printf("%dx%d\n", width, height);
+                    printf("%dx%d\n", width-cut_left-cut_right, height-cut_up-cut_down);
                 }
                 else{
                     printf("err\n");
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
             default:
                 printf("other option :%c\n",ch);
         }
-        printf("optopt +%c\n",optopt);
+        //printf("optopt +%c\n",optopt);
         fflush(stdout);
     }
     fflush(stdout);

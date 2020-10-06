@@ -22,11 +22,16 @@ if [ $1 ];then
     else
       CUTP='u0d0l0r0'
     fi
+    OUTSIZE=`./yuvtrans.exe -c $CUTP -j $1.jpg`
+    echo =====================================
+    echo Get output size is $OUTSIZE
+    echo =====================================
     echo converting jpeg to yuv
     ./ffmpeg/bin/ffmpeg.exe -i $1.jpg -pix_fmt yuvj420p -y $1.yuv
     echo yuvtrans.exe -s $SIZE -i $1.yuv -r $RP -l $LP -c $CUTP
     ./yuvtrans.exe -s $SIZE -i $1.yuv -r $RP -l $LP -c $CUTP
-    ./ffmpeg/bin/ffmpeg.exe -s $SIZE -pix_fmt yuvj420p -i $1_out.yuv -frames 1 -f image2 -y $1_out.jpeg
+    echo ffmpeg/bin/ffmpeg.exe -s $OUTSIZE -pix_fmt yuvj420p -i $1_out.yuv -frames 1 -f image2 -y $1_out.jpeg
+    ./ffmpeg/bin/ffmpeg.exe -s $OUTSIZE -pix_fmt yuvj420p -i $1_out.yuv -frames 1 -f image2 -y $1_out.jpeg
     echo $1 $2 $3 $4 done
     rm $1_out.yuv $1.yuv
     echo $1_out.yuv removed
