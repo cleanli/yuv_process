@@ -147,10 +147,10 @@ int main(int argc, char *argv[])
         rc = -1;
         goto quit;
     }
-    for(unsigned int i=0;i<height;i++)
+    for(unsigned int i=cut_up;i<height-cut_down;i++)
     {
         memcpy(pre_input_line, input_line, width);
-        if(i == 0){
+        if(i == cut_left){
             ret = fread(next_input_line, width, 1, fpi);
             if(ret != 1){
                 printf("fread ret %d i %x err %s\n", ret, i, strerror(errno));
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
             }
         }
         memcpy(input_line, next_input_line, width);
-        if(i < height -1){
+        if(i < height -cut_right-1){
             ret = fread(next_input_line, width, 1, fpi);
             if(ret != 1){
                 printf("fread ret %d i %x err %s\n", ret, i, strerror(errno));
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
                 goto quit;
             }
         }
-        for(int j=0;j<width;j++){
+        for(int j=cut_left;j<width-cut_right;j++){
             if(!algo_flag){
                 if(input_line[j] >= thr)output_line[j]=255;
                 else if(input_line[j] <=thrl)output_line[j]=0;
@@ -226,13 +226,13 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        fwrite(output_line, width, 1, fpo);
+        fwrite(output_line, width-cut_right-cut_left, 1, fpo);
     }
 
-    memset(output_line, 0x80, (width+1)/2);
-    for(unsigned int i=0;i<height;i++)
+    memset(output_line, 0x80, (width-cut_right-cut_left+1)/2);
+    for(unsigned int i=cut_up;i<height-cut_down;i++)
     {
-        fwrite(output_line, (width+1)/2, 1, fpo);
+        fwrite(output_line, (width-cut_right-cut_left+1)/2, 1, fpo);
     }
     printf("done\n");
 
