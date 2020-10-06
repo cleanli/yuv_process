@@ -17,7 +17,7 @@ void help_message()
 {
         printf("yuvprocess v0.2\nUsage: yuv_process -s WxH -i inputfile -r THR(128) -l THRL (-p)\n");
         printf("Example:\n./yuvtrans.exe -s 1729x2448 -i test.yuv\n");
-        printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 110\n");
+        printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 110 -c u100d100l50r50\n");
         printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 110 -l 0\n");
         printf("./yuvtrans.exe -s 3264x2448 -i IMG_20200126_233432.yuv -r 160 -l 100\n");
         printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 30 -l 30 -p\n");
@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
     int rc = 0, tmp;
     size_t ret = 0;
     unsigned char thr=THRD, thrl=THRD;
+    int cut_up = 0, cut_down = 0, cut_left = 0, cut_right = 0;
     int width = IMG_W, height = IMG_H;
     int algo_flag = 0;
     char* inputfilename = "C:\\files\\ffmpeg\\xcb.yuv";
@@ -40,13 +41,20 @@ int main(int argc, char *argv[])
     char* filename_end = "_out.yuv";
     memset(outputfilename, 0, MAX_BYTES_FILENAME);
     int ch;
-    while((ch = getopt(argc,argv,"s:i:r:l:pj:"))!= -1)
+    while((ch = getopt(argc,argv,"s:i:r:l:pj:c:"))!= -1)
     {
         //putchar(ch);
         //printf("\n");
         //fflush(stdout);
         switch(ch)
         {
+            case 'c':
+                printf("option c:'%s'\n",optarg);
+                fflush(stdout);
+                sscanf(optarg, "u%dd%dl%dr%d", &cut_up, &cut_down, &cut_left, &cut_right);
+                printf("cut u=%d d=%d l=%d r=%d\n", cut_up, cut_down, cut_left, cut_right);
+                fflush(stdout);
+                break;
             case 's':
                 printf("option s:'%s'\n",optarg);
                 fflush(stdout);
