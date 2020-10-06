@@ -7,12 +7,27 @@ if [ $1 ];then
     echo Get size of $1.jpg error, quit
 
   else
+    if [ $2 ];then
+      RP=$2
+    else
+      RP=128
+    fi
+    if [ $3 ];then
+      LP=$3
+    else
+      LP='128'
+    fi
+    if [ $4 ];then
+      CUTP=$4
+    else
+      CUTP='u0d0l0r0'
+    fi
     echo converting jpeg to yuv
     ./ffmpeg/bin/ffmpeg.exe -i $1.jpg -pix_fmt yuvj420p -y $1.yuv
-    echo yuvtrans.exe -s $SIZE -i $1.yuv -r $2 -l $3
-    ./yuvtrans.exe -s $SIZE -i $1.yuv -r $2 -l $3
+    echo yuvtrans.exe -s $SIZE -i $1.yuv -r $RP -l $LP -c $CUTP
+    ./yuvtrans.exe -s $SIZE -i $1.yuv -r $RP -l $LP -c $CUTP
     ./ffmpeg/bin/ffmpeg.exe -s $SIZE -pix_fmt yuvj420p -i $1_out.yuv -frames 1 -f image2 -y $1_out.jpeg
-    echo $1 $2 $3 done
+    echo $1 $2 $3 $4 done
     rm $1_out.yuv $1.yuv
     echo $1_out.yuv removed
   fi
