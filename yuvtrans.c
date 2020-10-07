@@ -151,8 +151,6 @@ int main(int argc, char *argv[])
         help_message();
         if(argc == 1)return 0;
     }
-    outwidth=width-cut_left-cut_right;
-    outheight=height-cut_up-cut_down;
     printf("THRL = %d\n", thr);
     if(!jpeginput){
         //printf("last is %s\n", inputfilename+strlen(inputfilename)-4);
@@ -168,6 +166,8 @@ int main(int argc, char *argv[])
         }
         read_jpeg_file(NULL, &width, &height, inputfilename);
     }
+    outwidth=width-cut_left-cut_right;
+    outheight=height-cut_up-cut_down;
     unsigned char* mem = (char*) malloc(4*(width+2));
     if(!mem){
         printf("can't malloc memory!\n");
@@ -337,6 +337,7 @@ int main(int argc, char *argv[])
     else{
         fflush(stdout);
         //show_buf("out", output_buffer, 32);
+        printf("out wxh %dx%d\n", outwidth, outheight);
         write_jpeg_file(output_buffer, outwidth, outheight, jpeg_qty, outputfilename);
     }
     printf("done\n");
