@@ -376,7 +376,7 @@ void write_jpeg_file(char*outputbuf, int w, int h, int p_quality, const char* fi
    * Four fields of the cinfo struct must be filled in:
    */
   printf("jpegwrite: wxh = %dx%d\n", w, h);
-  cinfo.image_width = g_sub_image_width; 	/* image width and height, in pixels */
+  cinfo.image_width = w; 	/* image width and height, in pixels */
   cinfo.image_height = h;
   cinfo.input_components = 3;		/* # of color components per pixel */
   cinfo.in_color_space = JCS_YCbCr; 	/* colorspace of input image */
