@@ -88,7 +88,8 @@ my_error_exit (j_common_ptr cinfo)
 
 #define JPEG_CROP_RET_OK 0
 #define JPEG_CROP_RET_ERR (-1)
-#define COMPONENTS_PER_POINT 3/2
+#define COMPONENTS_PER_POINT 3
+#define TO_EVEN(X) (((X)+1)/2*2)
 int buffer_init(int width, int height)
 {
   if(g_image_height == height && g_image_width == width){
@@ -96,7 +97,8 @@ int buffer_init(int width, int height)
   }
   g_image_height = height;
   g_image_width = width;
-  g_buffer_size = g_image_width * g_image_height * COMPONENTS_PER_POINT;
+  g_buffer_size = g_image_width * g_image_height;
+  g_buffer_size += TO_EVEN(g_image_width) * TO_EVEN(g_image_height)/2;
   if(g_buffer){
     free(g_buffer);
   }
@@ -111,6 +113,14 @@ int buffer_init(int width, int height)
   }
   printf("g_buffer %lx alloced\n", (long)g_buffer);
   return JPEG_CROP_RET_OK;
+}
+
+void buffer_uninit()
+{
+  if(g_buffer){
+    free(g_buffer); 
+    g_buffer = 0;
+  } 
 }
 
 int read_jpeg_file(const char* filename)
@@ -146,6 +156,7 @@ int read_jpeg_file(const char* filename)
 
   /* Step 1: allocate and initialize JPEG decompression object */
 
+  cinfo.out_color_space = JCS_YCbCr;
   /* We set up the normal JPEG error routines, then override error_exit. */
   cinfo.err = jpeg_std_error(&jerr.pub);
   jerr.pub.error_exit = my_error_exit;
@@ -199,7 +210,6 @@ int read_jpeg_file(const char* filename)
   row_stride = cinfo.output_width * cinfo.output_components;
   printf("row_stride is %d\n", row_stride);
   dst_buffer = g_buffer;
-  return 0;
   /* Make a one-row-high sample array that will go away when done with image */
   buffer = (*cinfo.mem->alloc_sarray)
 		((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
@@ -219,9 +229,37 @@ int read_jpeg_file(const char* filename)
     (void) jpeg_read_scanlines(&cinfo, buffer, 1);
     //printf("scan %d\n", cinfo.output_scanline);
     /* Assume put_scanline_someplace wants a pointer and sample count. */
-    memcpy(dst_buffer, (char*)(*buffer), row_stride);
-    dst_buffer += row_stride;
+    //memcpy(dst_buffer, (char*)(*buffer), row_stride);
+	int index = 0;
+    char* p_in_buffer = (char*)(*buffer);
+	for (int i = 0; i < g_image_width; i ++){
+		dst_buffer[index++] = *p_in_buffer;
+        //output from jpeg decompress is YUV444, Y,U,V,Y,U,V...
+		p_in_buffer += 3;
+	}
+    dst_buffer += g_image_width;
+/*
+	while (cinfo.next_scanline < cinfo.image_height) {
+		int index = 0;
+		for (i = 0; i < width; i += 2){
+			yuvbuf[index++] = *pY;
+			yuvbuf[index++] = *pU;
+			yuvbuf[index++] = *pV;
+			pY += 2;
+			yuvbuf[index++] = *pY;
+			yuvbuf[index++] = *pU;
+			yuvbuf[index++] = *pV;
+			pY += 2;
+			pU += 4;
+			pV += 4;
+		}
+		row_pointer[0] = yuvbuf;
+		(void)jpeg_write_scanlines(&cinfo, row_pointer, 1);// single line compress
+		j++;
+	}
+*/
   }
+  memset(g_buffer+g_image_width*g_image_height, 0x80, g_buffer_size-g_image_width*g_image_height);
   printf("code run %d line\n", __LINE__);
 
   /* Step 7: Finish decompression */
@@ -243,6 +281,15 @@ int read_jpeg_file(const char* filename)
    */
   fclose(infile);
 
+  FILE* fpw;
+  if ((fpw = fopen("testout.yuv", "wb")) == NULL) {
+    fprintf(stderr, "can't open %s\n", "out");
+  }
+  else{
+    fwrite(g_buffer, g_buffer_size, 1, fpw);
+    fclose(fpw);
+  }
+  buffer_uninit();
   printf("code run %d line\n", __LINE__);
   /* At this point you may want to check to see whether any corrupt-data
    * warnings occurred (test whether jerr.pub.num_warnings is nonzero).
