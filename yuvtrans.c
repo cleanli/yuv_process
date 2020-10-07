@@ -180,12 +180,15 @@ int main(int argc, char *argv[])
         if(i < cut_up || i >= (height-cut_down)){
             continue;
         }
-        for(int j=cut_left;j<width-cut_right;j++){
+        for(int j=0;j<width;j++){
+            if(j < cut_left || j >= (width-cut_right)){
+                continue;
+            }
             if(!algo_flag){
-                if(input_line[j] >= thr)output_line[j]=255;
-                else if(input_line[j] <=thrl)output_line[j]=0;
+                if(input_line[j] >= thr)output_line[j-cut_left]=255;
+                else if(input_line[j] <=thrl)output_line[j-cut_left]=0;
                 else{
-                    output_line[j] = (unsigned int)256*(input_line[j]-thrl)/(thr-thrl);
+                    output_line[j-cut_left] = (unsigned int)256*(input_line[j]-thrl)/(thr-thrl);
                 }
             }
             else{
@@ -197,7 +200,7 @@ int main(int argc, char *argv[])
                     ddt = getmax(abdiff(input_line[j-1],input_line[j]), abdiff(input_line[j+1],input_line[j]));
                 }
                 if(ddt > thr){
-                    output_line[j]=0;
+                    output_line[j-cut_left]=0;
                 }
                 else{//vertical check
                     if(i == height - 1) ddt = abdiff(input_line[j],pre_input_line[j]);
@@ -206,10 +209,10 @@ int main(int argc, char *argv[])
                         ddt = getmax(abdiff(pre_input_line[j],input_line[j]), abdiff(next_input_line[j],input_line[j]));
                     }
                     if(ddt > thr){
-                        output_line[j]=0;
+                        output_line[j-cut_left]=0;
                     }
                     else{
-                        output_line[j]=255;
+                        output_line[j-cut_left]=255;
                     }
                 }
 #endif
@@ -222,20 +225,20 @@ int main(int argc, char *argv[])
                         || abdiff(input_line[j], next_input_line[j-1]) > thr
                         || abdiff(input_line[j], pre_input_line[j+1]) > thr
                         || abdiff(input_line[j], next_input_line[j+1]) > thr){
-                        output_line[j]=0;
+                        output_line[j-cut_left]=0;
                 }
                 else{
-                    output_line[j]=255;
+                    output_line[j-cut_left]=255;
                 }
 #endif
                 if(abdiff(input_line[j], input_line[j+1]) > thr
                         || abdiff(input_line[j], pre_input_line[j]) > thr
                         || abdiff(input_line[j], pre_input_line[j-1]) > thr
                         || abdiff(input_line[j], pre_input_line[j+1]) > thr){
-                        output_line[j]=0;
+                        output_line[j-cut_left]=0;
                 }
                 else{
-                    output_line[j]=255;
+                    output_line[j-cut_left]=255;
                 }
             }
         }
