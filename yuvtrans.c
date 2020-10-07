@@ -201,6 +201,7 @@ int main(int argc, char *argv[])
         printf("line %d\n", __LINE__);
         fflush(stdout);
         read_jpeg_file(input_buffer, &width, &height, inputfilename);
+        //show_buf("input", input_buffer, 32);
         printf("line %d\n", __LINE__);
         fflush(stdout);
     }
@@ -299,6 +300,7 @@ int main(int argc, char *argv[])
         }
         //fwrite(output_line, width-cut_right-cut_left, 1, fpo);
         memcpy(obp, output_line, width-cut_right-cut_left);
+        //show_buf("obp", obp, 32);
         obp += outwidth;
     }
 
@@ -321,6 +323,7 @@ int main(int argc, char *argv[])
     }
     else{
         fflush(stdout);
+        //show_buf("out", output_buffer, 32);
         write_jpeg_file(output_buffer, outwidth, outheight, 70, outputfilename);
     }
     printf("done\n");

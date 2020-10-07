@@ -24,19 +24,9 @@
 #include <string.h>
 #include <setjmp.h>
 #include "jpeglib.h"
+#include "j.h"
 
-static char* g_buffer=0;		/* Output row buffer */
-static char* g_sub_buffer=0;
 static JSAMPLE * write_image_buffer = 0;	/* Points to large array of R,G,B-order data */
-static int g_image_height;	/* Number of rows in image */
-static int g_image_width;		/* Number of columns in image */
-static int g_sub_image_height;	/* Number of rows in image */
-static int g_sub_image_width;		/* Number of columns in image */
-static int g_sub_buffer_size = 0;
-static int g_buffer_size = 0;
-static int g_divided = 0;
-static int g_parts = 1;
-static int g_quality = 90;
 /*
  * ERROR HANDLING:
  *
@@ -99,6 +89,7 @@ int get_buffer_size(int width, int height)
     return ret;
 }
 
+#if 0
 int buffer_init(int width, int height)
 {
   if(g_image_height == height && g_image_width == width){
@@ -131,12 +122,14 @@ void buffer_uninit()
     g_buffer = 0;
   } 
 }
+#endif
 
 int read_jpeg_file(char*inputbuf, int *pw, int *ph, const char* filename)
 {
   /* This struct contains the JPEG decompression parameters and pointers to
    * working space (which is allocated as needed by the JPEG library).
    */
+  int width, height, buffer_size;
   struct jpeg_decompress_struct cinfo;
   /* We use our private extension JPEG error handler.
    * Note that this struct must live as long as the main JPEG parameter
@@ -218,6 +211,9 @@ int read_jpeg_file(char*inputbuf, int *pw, int *ph, const char* filename)
   printf("read wxh = %dx%d\n", cinfo.output_width, cinfo.output_height);
   *pw = cinfo.output_width;
   *ph = cinfo.output_height;
+  width = cinfo.output_width;
+  height = cinfo.output_height;
+  buffer_size = get_buffer_size(width, height);
   row_stride = cinfo.output_width * cinfo.output_components;
   printf("row_stride is %d\n", row_stride);
   if(inputbuf == NULL){
@@ -246,12 +242,12 @@ int read_jpeg_file(char*inputbuf, int *pw, int *ph, const char* filename)
     //memcpy(dst_buffer, (char*)(*buffer), row_stride);
 	int index = 0;
     char* p_in_buffer = (char*)(*buffer);
-	for (int i = 0; i < g_image_width; i ++){
+	for (int i = 0; i < cinfo.output_width; i ++){
 		dst_buffer[index++] = *p_in_buffer;
         //output from jpeg decompress is YUV444, Y,U,V,Y,U,V...
 		p_in_buffer += 3;
 	}
-    dst_buffer += g_image_width;
+    dst_buffer += cinfo.output_width;
 /*
 	while (cinfo.next_scanline < cinfo.image_height) {
 		int index = 0;
@@ -273,7 +269,7 @@ int read_jpeg_file(char*inputbuf, int *pw, int *ph, const char* filename)
 	}
 */
   }
-  memset(g_buffer+g_image_width*g_image_height, 0x80, g_buffer_size-g_image_width*g_image_height);
+  memset(inputbuf+width*height, 0x80, buffer_size-width*height);
   printf("code run %d line\n", __LINE__);
 
   /* Step 7: Finish decompression */
@@ -323,6 +319,7 @@ void write_jpeg_file(char*outputbuf, int w, int h, int p_quality, const char* fi
    * compression/decompression processes, in existence at once.  We refer
    * to any one struct (and its associated working data) as a "JPEG object".
    */
+  //show_buf("wjpeg", outputbuf, 32);
   struct jpeg_compress_struct cinfo;
   /* This struct represents a JPEG error handler.  It is declared separately
    * because applications often want to supply a specialized error handler
@@ -420,9 +417,10 @@ void write_jpeg_file(char*outputbuf, int w, int h, int p_quality, const char* fi
      * more than one scanline at a time if that's more convenient.
      */
 	for (int i = 0; i < w; i ++){
-		row_buf[index] = *src_buf_p++;
+		row_buf[index++] = *src_buf_p++;
+		row_buf[index++] = 0x80;
+		row_buf[index++] = 0x80;
         //input buf should be YUV444, Y,U,V,Y,U,V...
-		index += 3;
 	}
     row_pointer[0] = row_buf;
     (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
@@ -522,4 +520,18 @@ int GetJPEGWidthHeight(const char* path, unsigned int *punWidth, unsigned int *p
         printf("[GetJPEGWidthHeight]:jpeg format error!\n");
 #endif
     return -1;
+}
+
+void show_buf(const char* message, unsigned char* buf, int len)
+{
+    int count = 0;
+    printf("\n%s", message);
+    while(len--){
+        if(count % 16 == 0){
+            printf("\n%05d: ", count);
+        }
+        printf("%02x ", (*buf++ & 0xff));
+        count++;
+    }
+    printf("\n");
 }
