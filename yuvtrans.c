@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
         {
             case 'J':
                 jpeginput = 1;
+                filename_end = "_out.jpg";
                 break;
             case 'q':
                 quiet = 1;
@@ -141,10 +142,18 @@ int main(int argc, char *argv[])
     outwidth=width-cut_left-cut_right;
     outheight=height-cut_up-cut_down;
     printf("THRL = %d\n", thr);
-    //printf("last is %s\n", inputfilename+strlen(inputfilename)-4);
-    sprintf(outputfilename, "%s%s", inputfilename, filename_end);
-    if(strlen(inputfilename)>4 && !strcmp(".yuv", inputfilename+strlen(inputfilename)-4)){
-        sprintf(outputfilename+strlen(inputfilename)-4, "%s", filename_end);
+    if(!jpeginput){
+        //printf("last is %s\n", inputfilename+strlen(inputfilename)-4);
+        sprintf(outputfilename, "%s%s", inputfilename, filename_end);
+        if(strlen(inputfilename)>4 && !strcmp(".yuv", inputfilename+strlen(inputfilename)-4)){
+            sprintf(outputfilename+strlen(inputfilename)-4, "%s", filename_end);
+        }
+    }
+    else{
+        sprintf(outputfilename, "%s%s", inputfilename, filename_end);
+        if(strlen(inputfilename)>4 && !strcmp(".jpg", inputfilename+strlen(inputfilename)-4)){
+            sprintf(outputfilename+strlen(inputfilename)-4, "%s", filename_end);
+        }
     }
     unsigned char* mem = (char*) malloc(4*(width+2));
     if(!mem){
