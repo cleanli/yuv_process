@@ -157,10 +157,10 @@ int main(int argc, char *argv[])
         rc = -1;
         goto quit;
     }
-    for(unsigned int i=cut_up;i<height-cut_down;i++)
+    for(unsigned int i=0;i<height;i++)
     {
         memcpy(pre_input_line, input_line, width);
-        if(i == cut_left){
+        if(i == 0){
             ret = fread(next_input_line, width, 1, fpi);
             if(ret != 1){
                 printf("fread ret %d i %x err %s\n", ret, i, strerror(errno));
@@ -169,13 +169,16 @@ int main(int argc, char *argv[])
             }
         }
         memcpy(input_line, next_input_line, width);
-        if(i < height -cut_right-1){
+        if(i < height){
             ret = fread(next_input_line, width, 1, fpi);
             if(ret != 1){
                 printf("fread ret %d i %x err %s\n", ret, i, strerror(errno));
                 rc = -1;
                 goto quit;
             }
+        }
+        if(i < cut_up || i >= (height-cut_down)){
+            continue;
         }
         for(int j=cut_left;j<width-cut_right;j++){
             if(!algo_flag){
