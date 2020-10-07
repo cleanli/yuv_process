@@ -90,6 +90,15 @@ my_error_exit (j_common_ptr cinfo)
 #define JPEG_CROP_RET_ERR (-1)
 #define COMPONENTS_PER_POINT 3
 #define TO_EVEN(X) (((X)+1)/2*2)
+int get_buffer_size(int width, int height)
+{
+    int ret;
+
+    ret = width * height;
+    ret += TO_EVEN(width) * TO_EVEN(height)/2;
+    return ret;
+}
+
 int buffer_init(int width, int height)
 {
   if(g_image_height == height && g_image_width == width){

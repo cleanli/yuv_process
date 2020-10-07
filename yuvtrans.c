@@ -11,6 +11,9 @@
 
 #include "j.h"
 
+char* input_buffer = NULL;
+char* output_buffer = NULL;
+
 unsigned char abdiff(unsigned char x, unsigned char y);
 unsigned char getmax(unsigned char x, unsigned char y);
 void help_message()
@@ -32,6 +35,7 @@ int main(int argc, char *argv[])
 {
     int rc = 0, tmp;
     int quiet = 0;
+    int jpeginput = 0;
     size_t ret = 0;
     unsigned char thr=THRD, thrl=THRD;
     int cut_up = 0, cut_down = 0, cut_left = 0, cut_right = 0;
@@ -42,13 +46,16 @@ int main(int argc, char *argv[])
     char* filename_end = "_out.yuv";
     memset(outputfilename, 0, MAX_BYTES_FILENAME);
     int ch;
-    while((ch = getopt(argc,argv,"s:i:r:l:pj:c:q"))!= -1)
+    while((ch = getopt(argc,argv,"s:i:r:l:pj:c:qJ"))!= -1)
     {
         //putchar(ch);
         //printf("\n");
         //fflush(stdout);
         switch(ch)
         {
+            case 'J':
+                jpeginput = 1;
+                break;
             case 'q':
                 quiet = 1;
                 break;
