@@ -160,12 +160,6 @@ int main(int argc, char *argv[])
     printf("start process...\n");
     printf("yuv_process %dx%d %s %d %s print=%d %d\n",
             width, height, inputfilename, thr, outputfilename, algo_flag, thrl);
-    FILE *fpi = fopen(inputfilename, "rb");
-    if(fpi == NULL){
-        printf("open input fail\n");
-        rc = -1;
-        goto quit;
-    }
     input_bufsize = get_buffer_size(width, height);
     output_bufsize = get_buffer_size(outwidth, outheight);
     input_buffer = (char*)malloc(input_bufsize);
@@ -175,20 +169,31 @@ int main(int argc, char *argv[])
         rc = -1;
         goto quit;
     }
-    ret = fread(input_buffer, 1, input_bufsize, fpi);
-    if(ret != input_bufsize){
-        printf("fread ret %d not meet input bufsize err %s\n", ret, strerror(errno));
-        rc = -1;
-        goto quit;
-    }
     ibp = input_buffer;
     obp = output_buffer;
-    FILE *fpo = fopen(outputfilename, "wb");
-    if(fpi == NULL || fpo == NULL){
-        printf("open output fail\n");
+    FILE *fpi;
+    FILE *fpo;
+    if(!jpeginput){
+        fpi = fopen(inputfilename, "rb");
+        if(fpi == NULL){
+            printf("open input fail\n");
+            rc = -1;
+            goto quit;
+        }
+        ret = fread(input_buffer, 1, input_bufsize, fpi);
+        if(ret != input_bufsize){
+            printf("fread ret %d not meet input bufsize err %s\n", ret, strerror(errno));
+            rc = -1;
+            goto quit;
+        }
         fclose(fpi);
-        rc = -1;
-        goto quit;
+    }
+    else{
+        printf("line %d\n", __LINE__);
+        fflush(stdout);
+        read_jpeg_file(input_buffer, &width, &height, inputfilename);
+        printf("line %d\n", __LINE__);
+        fflush(stdout);
     }
     for(unsigned int i=0;i<height;i++)
     {
@@ -295,8 +300,20 @@ int main(int argc, char *argv[])
         memcpy(obp, output_line, (width-cut_right-cut_left+1)/2);
         obp += (outwidth+1)/2;
     }
-    fwrite(output_buffer, 1, output_bufsize, fpo);
-    printf("write output size %d ret %d\n", output_bufsize, ret);
+    if(!jpeginput){
+        fpo = fopen(outputfilename, "wb");
+        if(fpo == NULL){
+            printf("open output fail\n");
+            rc = -1;
+            goto quit;
+        }
+        fwrite(output_buffer, 1, output_bufsize, fpo);
+        printf("write output size %d ret %d\n", output_bufsize, ret);
+    }
+    else{
+        fflush(stdout);
+        write_jpeg_file(output_buffer, outwidth, outheight, 70, outputfilename);
+    }
     printf("done\n");
 
 quit:
