@@ -95,7 +95,7 @@ int get_buffer_size(int width, int height)
     int ret;
 
     ret = width * height;
-    ret += TO_EVEN(width) * TO_EVEN(height)/2;
+    ret += TO_EVEN(width) * height/2;
     return ret;
 }
 
