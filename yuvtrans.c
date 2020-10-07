@@ -15,7 +15,7 @@ unsigned char abdiff(unsigned char x, unsigned char y);
 unsigned char getmax(unsigned char x, unsigned char y);
 void help_message()
 {
-        printf("yuvprocess v0.2\nUsage: yuv_process -s WxH -i inputfile -r THR(128) -l THRL (-p)\n");
+        printf("yuvprocess v0.3\nUsage: yuv_process -s WxH -i inputfile -r THR(128) -l THRL (-p) -c uDdDlDrD\n");
         printf("Example:\n./yuvtrans.exe -s 1729x2448 -i test.yuv\n");
         printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 110 -c u100d100l50r50\n");
         printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 110 -l 0\n");
@@ -25,7 +25,7 @@ void help_message()
         printf("./ffmpeg.exe -i test.jpg -pix_fmt yuvj420p test.yuv\n");
         printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 107\n");
         printf("./ffmpeg.exe -s 1729x2448 -pix_fmt yuvj420p -i test_out.yuv -frames 1 -f image2 -y test_out.jpeg\n");
-        printf("./test IMG_20200126_233432 160 100\n");
+        printf("./process_sh IMG_20200126_233432 110 40 u200d200l20r20\n");
         printf("\n\nGet size of jpeg:\nyuv_process -j inputfile\n");
 }
 int main(int argc, char *argv[])
