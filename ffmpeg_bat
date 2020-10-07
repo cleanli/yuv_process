@@ -1,0 +1,36 @@
+./process_sh /d/testdir/testdir_pic0249 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0250 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0251 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0252 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0253 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0254 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0255 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0256 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0257 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0258 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0259 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0260 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0261 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0262 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0263 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0264 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0265 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0266 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0267 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0268 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0269 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0270 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0271 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0272 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0273 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0274 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0275 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0276 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0277 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0278 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0279 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0280 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0281 $1 $2 $3
+./process_sh /d/testdir/testdir_pic0282 $1 $2 $3
+mkdir /d/testdir/out_$1_$2_$3
+mv /d/testdir/*_out.jpeg /d/testdir/out_$1_$2_$3
