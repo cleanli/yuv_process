@@ -385,6 +385,7 @@ void write_jpeg_file(char*outputbuf, int w, int h, int p_quality, const char* fi
   /* Now you can set any non-default parameters you wish to.
    * Here we just illustrate the use of quality (quantization table) scaling:
    */
+  printf("jpegwrite: quality = %d\n", p_quality);
   jpeg_set_quality(&cinfo, p_quality, TRUE /* limit to baseline-JPEG values */);
 
   /* Step 4: Start compressor */

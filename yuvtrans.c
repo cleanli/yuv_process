@@ -31,6 +31,7 @@ void help_message()
         printf("./yuvtrans.exe -s 1729x2448 -i test.yuv -r 107\n");
         printf("./ffmpeg.exe -s 1729x2448 -pix_fmt yuvj420p -i test_out.yuv -frames 1 -f image2 -y test_out.jpeg\n");
         printf("./process_sh IMG_20200126_233432 110 40 u200d200l20r20\n");
+        printf("./yuvtrans.exe -J -i test.jpg -r 110 -l 80 -c u100d0l0r0 -t 40\n");
         printf("\n\nGet size of jpeg:\nyuv_process -j inputfile\n");
 }
 int main(int argc, char *argv[])
@@ -38,6 +39,7 @@ int main(int argc, char *argv[])
     int rc = 0, tmp;
     int quiet = 0;
     int jpeginput = 0;
+    int jpeg_qty= 50;
     size_t ret = 0;
     unsigned char thr=THRD, thrl=THRD;
     int cut_up = 0, cut_down = 0, cut_left = 0, cut_right = 0;
@@ -51,7 +53,7 @@ int main(int argc, char *argv[])
     char* obp = NULL;
     memset(outputfilename, 0, MAX_BYTES_FILENAME);
     int ch;
-    while((ch = getopt(argc,argv,"s:i:r:l:pj:c:qJ"))!= -1)
+    while((ch = getopt(argc,argv,"s:i:r:l:pj:c:qJt:"))!= -1)
     {
         //putchar(ch);
         //printf("\n");
@@ -89,6 +91,16 @@ int main(int argc, char *argv[])
                 printf("option i:'%s'\n",optarg);
                 inputfilename = optarg;
                 printf("input file:%s\n",inputfilename);
+                break;
+            case 't':
+                printf("option t:'%s'\n",optarg);
+                tmp = atoi(optarg);;
+                if(tmp>0 && tmp<=100){
+                    jpeg_qty = tmp; 
+                }
+                else{
+                    printf("invalid jpeg quality, should between 0 & 100\n");
+                }
                 break;
             case 'r':
                 printf("option r:'%s'\n",optarg);
@@ -324,7 +336,7 @@ int main(int argc, char *argv[])
     else{
         fflush(stdout);
         //show_buf("out", output_buffer, 32);
-        write_jpeg_file(output_buffer, outwidth, outheight, 70, outputfilename);
+        write_jpeg_file(output_buffer, outwidth, outheight, jpeg_qty, outputfilename);
     }
     printf("done\n");
 
