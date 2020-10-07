@@ -166,6 +166,7 @@ int main(int argc, char *argv[])
         if(strlen(inputfilename)>4 && !strcmp(".jpg", inputfilename+strlen(inputfilename)-4)){
             sprintf(outputfilename+strlen(inputfilename)-4, "%s", filename_end);
         }
+        read_jpeg_file(NULL, &width, &height, inputfilename);
     }
     unsigned char* mem = (char*) malloc(4*(width+2));
     if(!mem){
