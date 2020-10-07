@@ -13,6 +13,8 @@
 
 char* input_buffer = NULL;
 char* output_buffer = NULL;
+int input_bufsize = 0;
+int output_bufsize = 0;
 
 unsigned char abdiff(unsigned char x, unsigned char y);
 unsigned char getmax(unsigned char x, unsigned char y);
@@ -40,10 +42,13 @@ int main(int argc, char *argv[])
     unsigned char thr=THRD, thrl=THRD;
     int cut_up = 0, cut_down = 0, cut_left = 0, cut_right = 0;
     int width = IMG_W, height = IMG_H;
+    int outwidth=width, outheight=height;
     int algo_flag = 0;
     char* inputfilename = "C:\\files\\ffmpeg\\xcb.yuv";
     char outputfilename[MAX_BYTES_FILENAME];
     char* filename_end = "_out.yuv";
+    char* ibp = NULL;
+    char* obp = NULL;
     memset(outputfilename, 0, MAX_BYTES_FILENAME);
     int ch;
     while((ch = getopt(argc,argv,"s:i:r:l:pj:c:qJ"))!= -1)
@@ -75,6 +80,8 @@ int main(int argc, char *argv[])
                 fflush(stdout);
                 sscanf(optarg, "%dx%d", &width, &height);
                 printf("w=%d h=%d\n", width, height);
+                outwidth=width;
+                outheight=height;
                 fflush(stdout);
                 break;
             case 'i':
@@ -131,6 +138,8 @@ int main(int argc, char *argv[])
         help_message();
         if(argc == 1)return 0;
     }
+    outwidth=width-cut_left-cut_right;
+    outheight=height-cut_up-cut_down;
     printf("THRL = %d\n", thr);
     //printf("last is %s\n", inputfilename+strlen(inputfilename)-4);
     sprintf(outputfilename, "%s%s", inputfilename, filename_end);
@@ -157,6 +166,23 @@ int main(int argc, char *argv[])
         rc = -1;
         goto quit;
     }
+    input_bufsize = get_buffer_size(width, height);
+    output_bufsize = get_buffer_size(outwidth, outheight);
+    input_buffer = (char*)malloc(input_bufsize);
+    output_buffer = (char*)malloc(output_bufsize);
+    if(input_buffer == NULL || output_buffer == NULL){
+        printf("alloc mem fail\n");
+        rc = -1;
+        goto quit;
+    }
+    ret = fread(input_buffer, 1, input_bufsize, fpi);
+    if(ret != input_bufsize){
+        printf("fread ret %d not meet input bufsize err %s\n", ret, strerror(errno));
+        rc = -1;
+        goto quit;
+    }
+    ibp = input_buffer;
+    obp = output_buffer;
     FILE *fpo = fopen(outputfilename, "wb");
     if(fpi == NULL || fpo == NULL){
         printf("open output fail\n");
@@ -168,21 +194,29 @@ int main(int argc, char *argv[])
     {
         memcpy(pre_input_line, input_line, width);
         if(i == 0){
+            /*
             ret = fread(next_input_line, width, 1, fpi);
             if(ret != 1){
                 printf("fread ret %d i %x err %s\n", ret, i, strerror(errno));
                 rc = -1;
                 goto quit;
             }
+            */
+            memcpy(next_input_line, ibp, width);
+            ibp += width;
         }
         memcpy(input_line, next_input_line, width);
         if(i < height){
+            /*
             ret = fread(next_input_line, width, 1, fpi);
             if(ret != 1){
                 printf("fread ret %d i %x err %s\n", ret, i, strerror(errno));
                 rc = -1;
                 goto quit;
             }
+            */
+            memcpy(next_input_line, ibp, width);
+            ibp += width;
         }
         if(i < cut_up || i >= (height-cut_down)){
             continue;
@@ -249,14 +283,20 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        fwrite(output_line, width-cut_right-cut_left, 1, fpo);
+        //fwrite(output_line, width-cut_right-cut_left, 1, fpo);
+        memcpy(obp, output_line, width-cut_right-cut_left);
+        obp += outwidth;
     }
 
     memset(output_line, 0x80, (width-cut_right-cut_left+1)/2);
     for(unsigned int i=cut_up;i<height-cut_down;i++)
     {
-        fwrite(output_line, (width-cut_right-cut_left+1)/2, 1, fpo);
+        //fwrite(output_line, (width-cut_right-cut_left+1)/2, 1, fpo);
+        memcpy(obp, output_line, (width-cut_right-cut_left+1)/2);
+        obp += (outwidth+1)/2;
     }
+    fwrite(output_buffer, 1, output_bufsize, fpo);
+    printf("write output size %d ret %d\n", output_bufsize, ret);
     printf("done\n");
 
 quit:

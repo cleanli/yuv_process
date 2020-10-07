@@ -317,7 +317,7 @@ int GetJPEGWidthHeight(const char* path, unsigned int *punWidth, unsigned int *p
     *punWidth = 0;
     *punHeight = 0;
 
-    read_jpeg_file(path);
+    //read_jpeg_file(path);
     if ((pfRead = fopen(path, "rb")) == 0)
     {
         //printf("[GetJPEGWidthHeight]:can't open file:%s\n", path);
