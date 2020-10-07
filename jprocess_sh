@@ -1,0 +1,26 @@
+if [ $1 ];then
+    if [ $2 ];then
+      RP=$2
+    else
+      RP='128'
+    fi
+    if [ $3 ];then
+      LP=$3
+    else
+      LP='128'
+    fi
+    if [ $4 ];then
+      CUTP=$4
+    else
+      CUTP='u0d0l0r0'
+    fi
+    if [ $5 ];then
+      JQP=$4
+    else
+      JQP='50'
+    fi
+    ./yuvtrans.exe -J -i $1.jpg -r $RP -l $LP -c $CUTP -t $JQP
+
+else
+  echo Please input filename of input!
+fi
