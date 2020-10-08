@@ -375,8 +375,10 @@ void write_jpeg_file(char*outputbuf, int w, int h, int p_quality, const char* fi
   printf("jpegwrite: wxh = %dx%d\n", w, h);
   cinfo.image_width = w; 	/* image width and height, in pixels */
   cinfo.image_height = h;
-  cinfo.input_components = 3;		/* # of color components per pixel */
-  cinfo.in_color_space = JCS_YCbCr; 	/* colorspace of input image */
+  //cinfo.input_components = 3;		/* # of color components per pixel */
+  //cinfo.in_color_space = JCS_YCbCr; 	/* colorspace of input image */
+  cinfo.input_components = 1;		/* # of color components per pixel */
+  cinfo.in_color_space = JCS_GRAYSCALE;
   /* Now use the library's routine to set default compression parameters.
    * (You must set at least cinfo.in_color_space before calling this,
    * since the defaults depend on the source color space.)
@@ -403,7 +405,8 @@ void write_jpeg_file(char*outputbuf, int w, int h, int p_quality, const char* fi
    * To keep things simple, we pass one scanline per call; you can pass
    * more if you wish, though.
    */
-  row_stride = w * 3;	/* JSAMPLEs per row in image_buffer */
+  row_stride = w * cinfo.input_components;	/* JSAMPLEs per row in image_buffer */
+  /*
   row_buf = (char*)malloc(row_stride);
   if (row_buf == NULL) {
     fprintf(stderr, "can't malloc row buf\n");
@@ -411,12 +414,14 @@ void write_jpeg_file(char*outputbuf, int w, int h, int p_quality, const char* fi
   }
   memset(row_buf, 0, row_stride);
   char* src_buf_p = write_image_buffer;
+  */
   while (cinfo.next_scanline < cinfo.image_height) {
-    int index = 0;
+    //int index = 0;
     /* jpeg_write_scanlines expects an array of pointers to scanlines.
      * Here the array is only one element long, but you could pass
      * more than one scanline at a time if that's more convenient.
      */
+    /*
 	for (int i = 0; i < w; i ++){
 		row_buf[index++] = *src_buf_p++;
 		row_buf[index++] = 0x80;
@@ -424,6 +429,8 @@ void write_jpeg_file(char*outputbuf, int w, int h, int p_quality, const char* fi
         //input buf should be YUV444, Y,U,V,Y,U,V...
 	}
     row_pointer[0] = row_buf;
+    */
+    row_pointer[0] = & write_image_buffer[cinfo.next_scanline * row_stride];
     (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
   }
 
