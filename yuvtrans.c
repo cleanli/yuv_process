@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
@@ -15,7 +16,25 @@ char* input_buffer = NULL;
 char* output_buffer = NULL;
 int input_bufsize = 0;
 int output_bufsize = 0;
+uint32_t y_stastics[256];
 
+struct yuv_buffer {
+    uint32_t width;
+    uint32_t height;
+    uint32_t stride;
+    uint8_t* p_buf;
+};
+
+struct window {
+    uint32_t x;
+    uint32_t y;
+    uint32_t width;
+    uint32_t height;
+    struct yuv_buffer*mother;
+};
+struct yuv_buffer g_img_buffer={0};
+
+void get_y_stats(uint32_t*ystats, struct window*wd);
 unsigned char abdiff(unsigned char x, unsigned char y);
 unsigned char getmax(unsigned char x, unsigned char y);
 void help_message()
@@ -218,6 +237,17 @@ int main(int argc, char *argv[])
         printf("line %d\n", __LINE__);
         fflush(stdout);
     }
+    g_img_buffer.width=width;
+    g_img_buffer.height=height;
+    g_img_buffer.stride=width;
+    g_img_buffer.p_buf=input_buffer;
+    struct window tw;
+    tw.x=0;
+    tw.y=0;
+    tw.width=width;
+    tw.height=height;
+    tw.mother=&g_img_buffer;
+    get_y_stats(y_stastics, &tw);
     for(unsigned int i=0;i<height;i++)
     {
         memcpy(pre_input_line, input_line, width);
@@ -358,4 +388,27 @@ unsigned char abdiff(unsigned char x, unsigned char y)
 unsigned char getmax(unsigned char x, unsigned char y)
 {
     return (x > y)?x:y;
+}
+
+#define Y_VALUE_N 256
+#define GET_Y(X, Y, P_YBUF) (P_YBUF->p_buf[P_YBUF->stride*Y+X])
+void get_y_stats(uint32_t*ystats, struct window*wd)
+{
+    memset(ystats, 0, Y_VALUE_N);
+    struct yuv_buffer*s_buf = wd->mother;
+    if(s_buf->width-wd->x < wd->width || s_buf->height-wd->y < wd->height){
+        printf("input window invalid\n");
+        return;
+    }
+    for (int i = 0;i < s_buf->height; i++){
+        if(i<wd->y || i>=wd->y+wd->height){
+            continue;
+        }
+        for (int j = 0;j< s_buf->width; j++){
+            if(j<wd->x || j>=wd->x+wd->width){
+                continue;
+            }
+            ystats[GET_Y(j,i,s_buf)]++;
+        }
+    }
 }
