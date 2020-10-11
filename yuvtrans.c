@@ -9,6 +9,7 @@
 #define IMG_H 3024
 #define UVSIZE (IMG_W * IMG_H / 2)
 #define MAX_BYTES_FILENAME 128
+#define AUTO_DIFF_THRL 30
 
 #include "j.h"
 
@@ -56,6 +57,7 @@ void help_message()
 }
 int main(int argc, char *argv[])
 {
+    int auto_find = 1;
     int rc = 0, tmp;
     int quiet = 0;
     int jpeginput = 0;
@@ -127,6 +129,7 @@ int main(int argc, char *argv[])
                 tmp = atoi(optarg);;
                 if(tmp>0 && tmp<256){
                     thr = tmp;
+                    auto_find = 0;
                 }
                 break;
             case 'l':
@@ -135,6 +138,7 @@ int main(int argc, char *argv[])
                 if(tmp>=0 && tmp< thr){
                     thrl = tmp;
                     printf("THRL = %d\n", thrl);
+                    auto_find = 0;
                 }
                 else{
                     printf("err thrl\n");
@@ -238,18 +242,21 @@ int main(int argc, char *argv[])
         printf("line %d\n", __LINE__);
         fflush(stdout);
     }
-    g_img_buffer.width=width;
-    g_img_buffer.height=height;
-    g_img_buffer.stride=width;
-    g_img_buffer.p_buf=input_buffer;
-    struct window tw;
-    tw.x=0;
-    tw.y=0;
-    tw.width=width;
-    tw.height=height;
-    tw.mother=&g_img_buffer;
-    get_y_stats(y_stastics, &tw);
-    analysis_y_stats(y_stastics);
+    if(auto_find){
+        g_img_buffer.width=width;
+        g_img_buffer.height=height;
+        g_img_buffer.stride=width;
+        g_img_buffer.p_buf=input_buffer;
+        struct window tw;
+        tw.x=0;
+        tw.y=0;
+        tw.width=width;
+        tw.height=height;
+        tw.mother=&g_img_buffer;
+        get_y_stats(y_stastics, &tw);
+        thr = analysis_y_stats(y_stastics);
+        thrl = thr - AUTO_DIFF_THRL;
+    }
     for(unsigned int i=0;i<height;i++)
     {
         memcpy(pre_input_line, input_line, width);
