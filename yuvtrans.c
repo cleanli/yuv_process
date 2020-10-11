@@ -34,7 +34,7 @@ struct window {
 };
 struct yuv_buffer g_img_buffer={0};
 
-void print_y_stats(uint32_t*y_stastics);
+int analysis_y_stats(uint32_t*y_stastics);
 void get_y_stats(uint32_t*ystats, struct window*wd);
 unsigned char abdiff(unsigned char x, unsigned char y);
 unsigned char getmax(unsigned char x, unsigned char y);
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
     tw.height=height;
     tw.mother=&g_img_buffer;
     get_y_stats(y_stastics, &tw);
-    print_y_stats(y_stastics);
+    analysis_y_stats(y_stastics);
     for(unsigned int i=0;i<height;i++)
     {
         memcpy(pre_input_line, input_line, width);
@@ -416,10 +416,13 @@ void get_y_stats(uint32_t*ystats, struct window*wd)
 }
 
 #define MAX_PRINT_Y 200
-void print_y_stats(uint32_t*y_stastics)
+#define PRINT_Y_STATS
+int analysis_y_stats(uint32_t*y_stastics)
 {
+    int ret;
     uint32_t y_stat_max = 0;
     uint32_t y_max_index = 0;
+    int y_zero_after_y_max_index = -1;
     for(int i = 0;i<Y_VALUE_N;i++){
         if(y_stastics[i]>y_stat_max){
             y_stat_max = y_stastics[i];
@@ -433,9 +436,18 @@ void print_y_stats(uint32_t*y_stastics)
     }
     for(int i = 0;i<Y_VALUE_N;i++){
         int tmp = y_stastics[i]/reduction;
+        if(y_zero_after_y_max_index<0 &&
+                tmp==0 && i > y_max_index){
+            y_zero_after_y_max_index = i;
+        }
+#ifdef PRINT_Y_STATS
         while(tmp--){
             printf(" ");
         }
         printf("*\n");
+#endif
     }
+    ret = y_max_index*2 - y_zero_after_y_max_index;
+    printf("ret %d\n", ret);
+    return ret;
 }
