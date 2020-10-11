@@ -10,6 +10,7 @@
 #define UVSIZE (IMG_W * IMG_H / 2)
 #define MAX_BYTES_FILENAME 128
 #define AUTO_DIFF_THRL 30
+#define FIX_VALUE 3
 
 #include "j.h"
 
@@ -248,13 +249,13 @@ int main(int argc, char *argv[])
         g_img_buffer.stride=width;
         g_img_buffer.p_buf=input_buffer;
         struct window tw;
-        tw.x=0;
-        tw.y=0;
-        tw.width=width;
-        tw.height=height;
+        tw.x=cut_left;
+        tw.y=cut_up;
+        tw.width=width-cut_left-cut_right;
+        tw.height=height-cut_up-cut_down;
         tw.mother=&g_img_buffer;
         get_y_stats(y_stastics, &tw);
-        thr = analysis_y_stats(y_stastics);
+        thr = analysis_y_stats(y_stastics)-FIX_VALUE;
         thrl = thr - AUTO_DIFF_THRL;
     }
     for(unsigned int i=0;i<height;i++)
@@ -422,7 +423,7 @@ void get_y_stats(uint32_t*ystats, struct window*wd)
     }
 }
 
-#define MAX_PRINT_Y 200
+#define MAX_PRINT_Y 100
 #define PRINT_Y_STATS
 int analysis_y_stats(uint32_t*y_stastics)
 {
@@ -448,6 +449,7 @@ int analysis_y_stats(uint32_t*y_stastics)
             y_zero_after_y_max_index = i;
         }
 #ifdef PRINT_Y_STATS
+        printf("%03d", i);
         while(tmp--){
             printf(" ");
         }
